@@ -1,8 +1,9 @@
 """Unscrew-the-cap demo: connects to the gripper, starts the web twin, and waits for Start.
 
     python src/main.py                       # real gripper + webcam; open http://localhost:8000, press Start
-    python src/main.py --mock                # fake gripper (no hardware)
+    python src/main.py --mock                # simulated gripper (no hardware)
     python src/main.py --mock --no-camera --autostart --cycles 3   # CLI: run once and exit
+    python src/main.py --replay runs/recordings/<file>.jsonl     # play a tools/record.py recording (no motion)
 
 The page has Start (optionally with Gemini), Stop (graceful) and E-STOP (Esc key too: motion
 locked + every servo limp). The loop itself lives in controller.py.
@@ -56,7 +57,9 @@ class EventLog:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--mock", action="store_true", help="use FakeRobot instead of serial")
+    ap.add_argument("--mock", action="store_true", help="use DTwinRobot instead of serial")
+    ap.add_argument("--sim", nargs="?", const="pill_bottle", default=None,
+                    help="simulator: object-aware simulated gripper (pill_tube | pill_bottle | eye_dropper). Implies --mock")
     ap.add_argument("--port", default=os.getenv("SERIAL_PORT") or None, help="default: auto-detect ESP32 (VID 303A)")
     ap.add_argument("--camera", type=int, default=int(os.getenv("CAMERA_INDEX", "0")))
     ap.add_argument("--no-camera", action="store_true")
@@ -65,7 +68,21 @@ def main():
     ap.add_argument("--cycles", type=int, default=config.MAX_CYCLES)
     ap.add_argument("--no-twin", action="store_true", help="don't start the web digital twin")
     ap.add_argument("--twin-port", type=int, default=8000)
+    ap.add_argument("--real-fingers", action="store_true",
+                    help="with --sim: t / y also drive the REAL top finger servos 4 + 6 (limp between strokes)")
+    ap.add_argument("--real-stroke", type=float, default=150, help="--real-fingers stroke, degrees around 90")
+    ap.add_argument("--replay", metavar="PATH", help="play a tools/record.py .jsonl into the twin (read-only, no motion)")
     args = ap.parse_args()
+    if args.sim:
+        args.mock = True
+        import dataclasses   # sim objects are placed for the top layer at its lowest point
+        config.HALVES = dataclasses.replace(config.HALVES, grip=0)
+        # demo pace: an ideal servo moves faster than an SG90 (real-robot values stay as they are)
+        config.MOVE_DEG_PER_TICK, config.TWIST_DEG_PER_TICK, config.LIFT_DEG_PER_TICK = 7, 5, 4
+        config.SETTLE_S = 0.08
+    if args.replay:   # replay: mock-like (no calibration checks), no camera unless --camera is given
+        args.mock = True
+        args.no_camera = args.no_camera or not any(a.startswith("--camera") for a in sys.argv[1:])
 
     if not args.mock:
         problems = config.calibration_problems()
@@ -79,9 +96,15 @@ def main():
 
     log = EventLog()
 
-    if args.mock:
-        from fake_robot import FakeRobot
-        robot = FakeRobot().start()
+    if args.replay:
+        from replay_robot import ReplayRobot
+        robot = ReplayRobot(args.replay).start()
+    elif args.sim:
+        from sim_robot import SimRobot
+        robot = SimRobot(args.sim).start()
+    elif args.mock:
+        from dtwin_robot import DTwinRobot
+        robot = DTwinRobot().start()
     else:
         import servo_cal
         from robot_serial import RobotSerial
@@ -105,12 +128,22 @@ def main():
     else:   # verified equal to the firmware by servo_cal.check above
         reversed_flags = {int(i): c["reversed"] for i, c in config.CAL["servos"].items()}
 
+    fingers = None
+    if args.real_fingers:
+        if not args.sim:
+            sys.exit("--real-fingers needs --sim (the real gripper run already owns the servos)")
+        import skill_registry
+        from real_fingers import RealFingers
+        fingers = skill_registry.MIRROR = RealFingers(args.port, args.real_stroke, log=log)
+        print(f"real fingers: servos 4 + 6 mirror t / y ({fingers.lo}-{fingers.hi} deg), limp between strokes")
+
     from controller import Controller
     ctl = Controller(robot, cam, log, reversed_flags)
     if not args.no_twin:
         from twin_server import Twin
         twin = Twin(robot, cam, port=args.twin_port, controller=ctl).start()
         log.sinks.append(twin.publish)
+        ctl.frame_source = twin.request_frame   # Gemini agent can use the page's simulated top cam
 
     try:
         if args.autostart or args.no_twin:
@@ -131,6 +164,8 @@ def main():
     finally:
         if cam:
             cam.close()
+        if fingers:
+            fingers.close()
         robot.close()
         print(f"log: {log.path}")
 

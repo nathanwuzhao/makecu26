@@ -149,5 +149,5 @@ GEMINI_DAILY_CAP = int(os.getenv("GEMINI_DAILY_CAP", "200"))  # per model per da
 GEMINI_429_COOLDOWN_S = float(os.getenv("GEMINI_429_COOLDOWN_S", "60"))  # if Gemini doesn't say how long
 IMAGE_WIDTH = 384             # per image; before/after are sent as ONE side-by-side JPEG
 
-MAX_CYCLES = int(os.getenv("MAX_CYCLES", "20"))
+MAX_CYCLES = int(os.getenv("MAX_CYCLES", "8"))      # ~1.25 cap turns at ~70 deg per stroke = 7
 DEFAULT_TWIST_FRACTION = 1.0

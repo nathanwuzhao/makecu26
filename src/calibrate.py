@@ -4,7 +4,7 @@ calibration.json so that, for EVERY servo, 0 deg = HOME end and 180 deg = FAR en
 
     python src/calibrate.py            # every servo not calibrated yet (all of them the first time)
     python src/calibrate.py 6 4        # just these servos (re-calibrate)
-    python src/calibrate.py --mock     # practice on the fake gripper
+    python src/calibrate.py --mock     # practice on the simulated gripper
 
 Per servo:
   1. It starts LIMP. Push the finger by hand to roughly the MIDDLE of its travel.
@@ -21,6 +21,7 @@ Per servo:
 
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -33,8 +34,11 @@ from robot_serial import LIMP  # noqa: E402
 from servo_cal import SERVOS, raw_angle_to_us  # noqa: E402
 
 CURRENT_CH = {0: 0, 5: 1}     # squeeze servos have a current sensor
-STALL_MA = 600                # sustained above this on a squeeze servo = stalling -> auto-limp
-STALL_LINES = 3
+# Sustained above STALL_MA for STALL_LINES D lines (~40 ms each) on a squeeze servo = stalling ->
+# auto-limp. MG90S moving a loaded squeeze draws ~600-700 mA for a few hundred ms, so 600 mA /
+# 3 lines (120 ms) tripped on normal moves. A real stall at ~800 mA for 0.5 s does no harm.
+STALL_MA = float(os.getenv("CAL_STALL_MA", "800"))
+STALL_LINES = int(os.getenv("CAL_STALL_LINES", "12"))
 
 
 def load_cal() -> dict:
@@ -280,8 +284,8 @@ def main():
     cal = load_cal()
     servos = args.servos or [i for i in range(7) if str(i) not in cal.get("servos", {})] or list(range(7))
     if args.mock:
-        from fake_robot import FakeRobot
-        robot = FakeRobot().start()
+        from dtwin_robot import DTwinRobot
+        robot = DTwinRobot().start()
     else:
         from robot_serial import RobotSerial
         robot = RobotSerial(args.port).start()

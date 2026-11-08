@@ -1,0 +1,171 @@
+{
+ "work_center_mm": [
+  85,
+  0,
+  0
+ ],
+ "objects": {
+  "pill_bottle": {
+   "label": "Child-proof pill bottle",
+   "task": "unscrew",
+   "procedural": "pill_bottle",
+   "params": {
+    "body_d": 34,
+    "body_h": 75,
+    "cap_d": 38,
+    "cap_h": 18,
+    "neck_z": 17,
+    "neck_d": 30,
+    "cap_ridges": 24,
+    "label_z": [
+     -45,
+     -5
+    ],
+    "label_color": "#ffffff",
+    "body_color": "#d9822b",
+    "cap_color": "#f2f2f2",
+    "frame": "object frame = CAD frame offset by transform; body spans z neck_z-body_h..neck_z (-58..17), cap neck_z..neck_z+cap_h (17..35)"
+   },
+   "transform": {
+    "position_mm": [
+     85,
+     0,
+     0
+    ],
+    "rotation_deg": [
+     0,
+     0,
+     0
+    ],
+    "scale": 1
+   },
+   "grip": {
+    "bottom_d_mm": 34,
+    "top_d_mm": 38
+   },
+   "contact_deg": {
+    "bottom": 41.5,
+    "top": 26.7
+   },
+   "parts": {
+    "cap": "cap",
+    "body": "body",
+    "dial": null,
+    "plunger": null,
+    "nozzle": null
+   },
+   "sim": {
+    "turns_to_open": 1.5,
+    "thread_pitch_mm": 3,
+    "top_z_mm": [
+     1,
+     19
+    ]
+   },
+   "notes": "Procedural (no STEP). Bottom fingers hold the body (d34), top fingers the cap (d38). Twist stroke 24.3 mm on r=19 turns the cap 73 deg, so 1.5 turns ~ 7.4 strokes; cap rises thread_pitch_mm per turn."
+  },
+  "eye_dropper": {
+   "label": "Eye-drop bottle",
+   "task": "dispense",
+   "glb": "assets/objects/eye_dropper.glb",
+   "params": {
+    "body_d": 24,
+    "body_z_model": [
+     0,
+     48
+    ],
+    "shoulder_z_model": [
+     48,
+     56
+    ],
+    "neck_d": 12,
+    "nozzle_d": 14,
+    "nozzle_tip_d": 4.5
+   },
+   "transform": {
+    "position_mm": [
+     85,
+     0,
+     60
+    ],
+    "rotation_deg": [
+     180,
+     0,
+     0
+    ],
+    "scale": 1
+   },
+   "grip": {
+    "bottom_d_mm": 24,
+    "top_d_mm": 24
+   },
+   "contact_deg": {
+    "bottom": 78.5,
+    "top": 78.5
+   },
+   "parts": {
+    "cap": null,
+    "body": "bottle",
+    "dial": null,
+    "plunger": null,
+    "nozzle": "cap"
+   },
+   "sim": {
+    "squeeze_mm_per_drop": 1.5,
+    "drop_origin_mm": [
+     85,
+     0,
+     -27
+    ],
+    "top_z_mm": [
+     0,
+     32
+    ]
+   },
+   "notes": "Held inverted (rotation 180 about X; model z -> CAD z = 60 - z). CAD z: body base 60, body 60..12, shoulder 12..4, neck 4..-2, nozzle (node 'cap', d14 tapering to 4.5) -2..-27. Bottom layer (-16..16) holds the lower body + shoulder (max d24), top layer (16..48) squeezes the body (d24). Drops fall from the nozzle tip at z=-27."
+  },
+  "pill_tube": {
+   "label": "Pill tube (team CAD)",
+   "task": "unscrew",
+   "glb": "assets/objects/pill_tube.glb",
+   "transform": {
+    "position_mm": [
+     85,
+     0,
+     -24.5
+    ],
+    "rotation_deg": [
+     180,
+     0,
+     0
+    ],
+    "scale": 0.85
+   },
+   "grip": {
+    "bottom_d_mm": 32.8,
+    "top_d_mm": 40.2
+   },
+   "contact_deg": {
+    "bottom": 45.9,
+    "top": 18.5
+   },
+   "parts": {
+    "cap": "Cap:1",
+    "body": "Bottle:1",
+    "dial": null,
+    "plunger": null,
+    "nozzle": null
+   },
+   "sim": {
+    "turns_to_open": 1.25,
+    "thread_pitch_mm": 3,
+    "top_z_mm": [
+     10,
+     22
+    ]
+   },
+   "notes": "From 'Pill Tube.step'. Real size: body d38.6, base flange d43.6, cap d47.3-48.6 - the cap is wider than the CAD's 45.2 mm open gap (the real gripper opens ~52 mm), so the sim shows it scaled x0.85: body d32.8, cap d40.2. STEP is modelled cap-down: flipped 180 deg about X. Cap CAD z 26..38 (top fingers), body -25.6..24 (bottom fingers), with the top layer at halves 0."
+  }
+ },
+ "top_layer_note": "Objects are placed for the top layer at halves 0 (sim sets the halves 'grip' slot to 0). top_z_mm = contact band on the pad, mm above the top layer's bottom edge (CAD z 16)."
+}

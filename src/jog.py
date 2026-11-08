@@ -5,7 +5,7 @@ Do `python src/calibrate.py` first: it sets each servo's end-of-travel so that 0
 moves calibrated servos, and z / x then go exactly to those safe ends.
 
     python src/jog.py            # real gripper (port auto-detected, opened without resetting)
-    python src/jog.py --mock     # fake gripper
+    python src/jog.py --mock     # simulated gripper
     Also serves the digital twin at http://localhost:8000 (use it to check twin axes/signs).
 
 Keys
@@ -269,8 +269,8 @@ def main():
     ap.add_argument("--no-twin", action="store_true", help="don't start the web digital twin (port 8000)")
     args = ap.parse_args()
     if args.mock:
-        from fake_robot import FakeRobot
-        robot = FakeRobot().start()
+        from dtwin_robot import DTwinRobot
+        robot = DTwinRobot().start()
     else:
         from robot_serial import RobotSerial
         robot = RobotSerial(args.port).start()

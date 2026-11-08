@@ -13,7 +13,7 @@ from robot_serial import LIMP, NUM_SERVOS, TACTILE_COUNT, MotionLocked, RobotSta
 CONTACT_ANGLE = 95
 
 
-class FakeRobot:
+class DTwinRobot:
     def __init__(self):
         self._angles = [LIMP] * NUM_SERVOS   # like the real firmware: limp until the first S
         self._moved_at = [0.0] * NUM_SERVOS   # for the start-of-move current spike
@@ -23,7 +23,7 @@ class FakeRobot:
         self._stop = threading.Event()
         threading.Thread(target=self._loop, daemon=True).start()
 
-    def start(self) -> "FakeRobot":
+    def start(self) -> "DTwinRobot":
         time.sleep(0.1)
         return self
 

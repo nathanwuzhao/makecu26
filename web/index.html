@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Gripper Twin</title>
+<title>TEND</title>
+<meta name="description" content="TEND: Cartesian Gripper with Tactile and Vision Assistance">
 <link rel="stylesheet" href="style.css">
 <script type="importmap">
 { "imports": { "three": "./vendor/three.module.js", "three/addons/": "./vendor/addons/" } }
@@ -13,10 +14,24 @@
 <main>
   <section id="stage">
     <canvas id="view"></canvas>
-    <div id="hud">
+    <div id="brand"><b>TEND</b><span>Cartesian Gripper with Tactile and Vision Assistance</span></div>
+    <div id="hud" hidden>   <!-- status bubbles: kept (scripts write to them) but not shown -->
       <span id="conn" class="pill bad">connecting…</span>
       <span id="tact" class="pill">tactile —</span>
       <span id="hz" class="pill">— Hz</span>
+      <button id="topcam-toggle" class="pill">top cam</button>
+    </div>
+    <div id="tact-wrap">   <!-- tactile heatmap, right above the top-cam view -->
+      <div class="tact-head"><span class="cap">tactile · top right finger · <span id="tact-info">—</span></span>
+        <button id="tare" class="mini" title="Re-zero with nothing touching the pad">Tare</button></div>
+      <canvas id="heat" width="320" height="160"></canvas>
+    </div>
+    <div id="topcam-wrap"><span class="cap">top cam (simulated)</span></div>
+    <div id="telemetry">   <!-- servo angles + squeeze current over the 3D view (right side) -->
+      <div class="cap">servos</div>
+      <div id="servos"></div>
+      <div class="cap">squeeze current <span class="i0">i0 bottom</span> · <span class="i1">i1 top</span> · last 10 s</div>
+      <canvas id="plot" height="120"></canvas>
     </div>
     <div id="cam-wrap" hidden><img id="cam" alt="webcam"></div>
   </section>
@@ -34,20 +49,18 @@
         <button id="reset-estop" hidden>Reset E-stop</button>
       </div>
       <div class="ctl-row opts">
-        <label><input type="checkbox" id="opt-gemini"> Gemini <small id="budget"></small></label>
-        <label>cycles <input type="number" id="opt-cycles" min="1" max="100" value="20"></label>
+        <label><input type="checkbox" id="opt-gemini"> Gemini</label>
+        <label title="maximum twist cycles before giving up">max cycles <input type="number" id="opt-cycles" min="1" max="20" value="8"></label>
       </div>
       <div id="ctl-msg" class="muted"></div>
+      <div id="skills-box">
+        <div class="skills-head"><b>Skills</b> <span class="muted">one bounded move per press · Stop / Esc work</span></div>
+        <div id="skills"></div>
+        <div id="skill-params" class="ctl-row opts"></div>
+      </div>
     </section>
 
-    <h2>Servos</h2>
-    <div id="servos"></div>
-
-    <h2>Squeeze current <small>(i0 bottom · i1 top, last 10 s)</small></h2>
-    <canvas id="plot" height="120"></canvas>
-
-    <h2>Tactile <small>(16 × 32)</small></h2>
-    <canvas id="heat" width="320" height="160"></canvas>
+    <section id="demo"></section>         <!-- web/demo.js (+ trace.js): one Gemini panel: one-look plan or closed loop -->
 
     <h2>Agent / events</h2>
     <ol id="log"></ol>
@@ -62,6 +75,10 @@
     </details>
   </aside>
 </main>
+<link rel="stylesheet" href="demo.css">
 <script type="module" src="app.js"></script>
+<script type="module" src="objects.js"></script>
+<script type="module" src="demo.js"></script>
+<script type="module" src="trace.js"></script>
 </body>
 </html>

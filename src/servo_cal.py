@@ -5,7 +5,7 @@ After calibration every servo means the same thing, whichever way it is mounted:
     angle 0   = HOME end  (squeeze open / finger back / halves down)
     angle 180 = FAR end   (squeeze closed / finger forward / halves up)
 and both ends sit MARGIN_US inside the physical end of travel. So no angle 0-180 can drive a
-servo into its end stop (or, for top finger left, past where it has no end stop).
+servo into its end stop.
 
 How it maps onto the firmware (docs/serial-protocol.md "C" and "R"):
     min_us, max_us = the two end pulses (sorted)
@@ -30,8 +30,7 @@ SERVOS = {
     3: ("bottom finger left", "BACK (fully retracted)", "FORWARD (fully extended)", ""),
     4: ("top finger right", "BACK (fully retracted)", "FORWARD (fully extended)", ""),
     5: ("top squeeze", "OPEN (fingers fully apart)", "CLOSED (fingers touching each other)", ""),
-    6: ("top finger left", "BACK (fully retracted)", "FORWARD (fully extended)",
-        "NO END STOPS: stop at the end of useful travel, it won't hit anything to tell you"),
+    6: ("top finger left", "BACK (fully retracted)", "FORWARD (fully extended)", ""),
 }
 
 

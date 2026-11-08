@@ -4,3 +4,10 @@ __pycache__/
 /runs/
 /docs/
 /.vscode/
+*.step
+*.STEP
+*.stp
+*.SLDASM
+*.SLDPRT
+*.sldasm
+*.sldprt

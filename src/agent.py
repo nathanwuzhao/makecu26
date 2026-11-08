@@ -30,7 +30,7 @@ import config
 USAGE_FILE = Path(__file__).parent.parent / "runs" / "gemini_usage.json"
 
 SYSTEM_PROMPT = """\
-You supervise a small robot gripper ("Cartesian hand", 4 fingers on servo-driven sliders) that is
+You supervise a small robot gripper (TEND, a Cartesian gripper with tactile and vision assistance: 4 fingers on servo-driven sliders) that is
 unscrewing a cap from a small bottle. You see one image with two panels, BEFORE (left) and AFTER
 (right) the latest twist cycle, plus sensor telemetry. You do NOT control servos; you pick the next
 high-level action.

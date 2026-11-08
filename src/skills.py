@@ -71,6 +71,7 @@ class Skills:
         self.tactile_baseline: bytes | None = None
         self._cmd: dict[int, int] = {}   # last commanded angle per servo
         self.last_contact: dict[int, int] = {}  # contact angle from the previous grip, per servo
+        self.holding: dict[int, bool] = {}       # squeeze idx -> currently gripping something
         self.recent = deque(maxlen=50)   # last ~2 s of D-line states
         robot.listeners.append(self.recent.append)
 
@@ -134,7 +135,7 @@ class Skills:
     def _fresh_states(self, n: int):
         """Wait for the next n D lines (each ~40 ms apart)."""
         out, last_t = [], self._wait_state().t
-        deadline = time.time() + 1.0 + n * 0.1
+        deadline = time.time() + 3.0 + n * 0.1   # 3 s slack: a busy laptop (screen share, browser) can pause the sim thread
         while len(out) < n:
             if time.time() > deadline:
                 raise RuntimeError("D stream stalled")
@@ -214,6 +215,7 @@ class Skills:
 
     def open(self, sq: Squeeze):
         self.move({sq.idx: sq.open})
+        self.holding[sq.idx] = False
 
     def release(self, sq: Squeeze):
         """Back off just enough to let go (fingers aren't grippy, so a small gap is plenty).
@@ -224,6 +226,7 @@ class Skills:
         target = self.last_contact[sq.idx] - sign * config.RELEASE_MARGIN_DEG
         lo, hi = sorted((sq.open, sq.closed))
         self.move({sq.idx: max(lo, min(hi, target))})
+        self.holding[sq.idx] = False
 
     def grip(self, sq: Squeeze, use_tactile: bool = config.USE_TACTILE, regulate: bool = True) -> GripResult:
         """Step closed; after each step let the move transient die out, then check the HOLDING
@@ -250,6 +253,7 @@ class Skills:
                 reason = "tactile"
             if reason:
                 self.last_contact[sq.idx] = angle
+                self.holding[sq.idx] = True
                 ok, hold = self.regulate(sq) if regulate else (False, hold)
                 return GripResult(True, self._angle(sq.idx), angle, round(hold, 1), round(peak, 1),
                                   reason, ok, self.tactile_features())
