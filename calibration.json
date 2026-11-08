@@ -22,6 +22,17 @@
    "min_us": 530,
    "reversed": 0
   },
+  "3": {
+   "calibrated_at": "2026-11-08 12:04:09 (same as the other fingers, per team)",
+   "far_us": 2370,
+   "home_us": 530,
+   "margin_us": 30,
+   "marked_far_us": 2400,
+   "marked_home_us": 500,
+   "max_us": 2370,
+   "min_us": 530,
+   "reversed": 0
+  },
   "4": {
    "calibrated_at": "2026-11-08 02:48:00",
    "far_us": 2370,
