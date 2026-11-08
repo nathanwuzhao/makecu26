@@ -460,7 +460,8 @@ function connect() {
   es.addEventListener('state', (ev) => {
     latest = JSON.parse(ev.data);
     if (!POSE) latest.angles.forEach((a, i) => { limp[i] = a < 0; if (a >= 0) target[i] = a; });
-    hist.push([latest.t, latest.current_ma[0], latest.current_ma[1]]);
+    const cm = latest.sim?.expected_ma || latest.current_ma;   // sim: calculated expected current (no spikes/noise)
+    hist.push([latest.t, cm[0], cm[1]]);
     while (hist.length && latest.t - hist[0][0] > 10) hist.shift();
     count++;
     for (const f of twin.onState) { try { f(latest); } catch (e) { console.error(e); } }
@@ -540,6 +541,7 @@ function renderSkills(list) {
   const params = new Map();
   let group = null, row = null;
   for (const s of list) {
+    if (s.group !== 'manual' && s.name !== 'home') continue;   // demo: Home (sim) + finger strokes t / y / x / c only
     if (s.group !== group) {
       group = s.group;
       row = document.createElement('div');
@@ -577,10 +579,10 @@ $('stop').onclick = () => api('stop');
 $('estop').onclick = () => api('estop');
 $('reset-estop').onclick = () => api('reset');
 addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); api('estop'); } });
-// t / y: one-way top-finger twist strokes (same keys as tools/record.py). Not while typing a goal.
+// t / y: top-finger strokes (same keys as tools/record.py); x / c: same for the bottom fingers. Not while typing.
 addEventListener('keydown', (e) => {
   if (e.repeat || e.ctrlKey || e.metaKey || e.altKey || e.target.closest?.('input, textarea, select')) return;
-  const name = { t: 'slide_rf', y: 'slide_rb' }[e.key.toLowerCase()];
+  const name = { t: 'slide_rf', y: 'slide_rb', x: 'bslide_rf', c: 'bslide_rb' }[e.key.toLowerCase()];
   if (!name) return;
   e.preventDefault();
   if (ctlState !== 'idle') { $('ctl-msg').textContent = `${e.key}: busy (${ctlState}), press Stop first`; return; }

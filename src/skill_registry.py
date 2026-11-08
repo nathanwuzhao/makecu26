@@ -145,17 +145,21 @@ def _twist(sk: Skills, fraction: float) -> dict:
     return {"ok": True, "fraction": fraction, "grip_during_twist": holder.summary()}
 
 
-MIRROR = None   # main.py --real-fingers: real_fingers.RealFingers, gets the same t / y strokes
+MIRROR = None   # main.py --real-fingers: real_fingers.RealFingers, gets the same t / y / x / c strokes
+FINGER_PAIRS = {"top": (4, 6), "bottom": (1, 3)}   # (right, left) slide servos
 
 
-def _slide(right_forward: bool):
-    """Top fingers only, one-way, same as tools/record.py t / y. 0 = back, 180 = forward.
-    Keeps a held cap's grip regulated while sliding (so it turns the cap, either way)."""
+def _slide(layer: str, right_forward: bool):
+    """One finger pair, one-way, same as tools/record.py t / y. 0 = back, 180 = forward.
+    Keeps a held grip on that layer regulated while sliding (so it turns the cap / bottle)."""
+    R, L = FINGER_PAIRS[layer]
+    sq = TOP if layer == "top" else BOTTOM
+
     def run(sk: Skills) -> dict:
-        target = {4: 180, 6: 0} if right_forward else {4: 0, 6: 180}
+        target = {R: 180, L: 0} if right_forward else {R: 0, L: 180}
         if MIRROR is not None:
-            MIRROR.stroke(right_forward)          # real servos 4 / 6 in parallel (background thread)
-        holder = GripHolder(sk, TOP, config.GRIP_TARGET_MA[TOP.idx]) if sk.holding.get(TOP.idx) else None
+            MIRROR.stroke(layer, right_forward)   # real servos in parallel (background thread)
+        holder = GripHolder(sk, sq, config.GRIP_TARGET_MA[sq.idx]) if sk.holding.get(sq.idx) else None
         sk.move(target, config.TWIST_DEG_PER_TICK, hook=holder)
         return {"ok": True, **({"grip_during_twist": holder.summary()} if holder else {})}
     return run
@@ -223,10 +227,16 @@ SKILLS: list[Skill] = [
     # Manual twist strokes (keys t / y on the page). Not offered to Gemini.
     Skill("slide_rf", "R fwd · L back (t)", "manual",
           "Top fingers only: right finger forward, left finger back (the loosening direction).",
-          _slide(True), _all(_not_dispense, lambda sk: _known(sk, *SLIDE_IDX)), servos=SLIDE_IDX),
+          _slide("top", True), _all(_not_dispense, lambda sk: _known(sk, *SLIDE_IDX)), servos=SLIDE_IDX),
     Skill("slide_rb", "R back · L fwd (y)", "manual",
           "Top fingers only: right finger back, left finger forward (tightens a gripped cap).",
-          _slide(False), _all(_not_dispense, lambda sk: _known(sk, *SLIDE_IDX)), servos=SLIDE_IDX),
+          _slide("top", False), _all(_not_dispense, lambda sk: _known(sk, *SLIDE_IDX)), servos=SLIDE_IDX),
+    Skill("bslide_rf", "Bottom R fwd · L back (x)", "manual",
+          "Bottom fingers only: right finger forward, left finger back.",
+          _slide("bottom", True), _all(_not_dispense, lambda sk: _known(sk, 1, 3)), servos=[1, 3]),
+    Skill("bslide_rb", "Bottom R back · L fwd (c)", "manual",
+          "Bottom fingers only: right finger back, left finger forward.",
+          _slide("bottom", False), _all(_not_dispense, lambda sk: _known(sk, 1, 3)), servos=[1, 3]),
 
     Skill("lift_test", "Lift (test)", "lift",
           "Raise the top half a few mm to the test height (keeps the cap grip regulated if holding it).",

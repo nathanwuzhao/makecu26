@@ -306,17 +306,19 @@ class SimRobot:
                 self._drop_armed = True
 
         # currents
-        cur = [0.0, 0.0]
+        cur, expected = [0.0, 0.0], [0.0, 0.0]   # expected = the model without inrush spikes / noise (page plot)
         for side, sq in (("bottom", BOTTOM), ("top", TOP)):
             if a[sq.idx] == LIMP:
                 cur[sq.current_ch] = 1.5 + self._rng.uniform(0, 1)
                 continue
             h = hold[side] * (TWIST_LOAD if side == "top" and twisting else 1.0)
+            expected[sq.current_ch] = round(min(CURRENT_CAP_MA, 3 + 3 * a[sq.idx] / 180 + h), 1)
             amp, dur = self._spike[sq.idx]
             spike = amp if now - self._moved_at[sq.idx] < dur else 0.0
             noise = self._rng.gauss(0, 0.8) + 0.02 * h * self._rng.gauss(0, 1)
             cur[sq.current_ch] = round(min(CURRENT_CAP_MA, max(0.0, 3 + 3 * a[sq.idx] / 180 + h + spike + noise)), 1)
 
+        s["expected_ma"] = expected
         self._prev = list(a)
         tactile = self._tactile(max(0.0, p["top"]), pos(PAD_SLIDE), s["slip"], s["shear_cols"])
         return cur, tactile

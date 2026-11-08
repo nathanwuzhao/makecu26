@@ -69,7 +69,7 @@ def main():
     ap.add_argument("--no-twin", action="store_true", help="don't start the web digital twin")
     ap.add_argument("--twin-port", type=int, default=8000)
     ap.add_argument("--real-fingers", action="store_true",
-                    help="with --sim: t / y also drive the REAL top finger servos 4 + 6 (limp between strokes)")
+                    help="with --sim: t / y / x / c also drive the REAL finger slide servos (limp between strokes)")
     ap.add_argument("--real-stroke", type=float, default=150, help="--real-fingers stroke, degrees around 90")
     ap.add_argument("--replay", metavar="PATH", help="play a tools/record.py .jsonl into the twin (read-only, no motion)")
     args = ap.parse_args()
@@ -135,7 +135,7 @@ def main():
         import skill_registry
         from real_fingers import RealFingers
         fingers = skill_registry.MIRROR = RealFingers(args.port, args.real_stroke, log=log)
-        print(f"real fingers: servos 4 + 6 mirror t / y ({fingers.lo}-{fingers.hi} deg), limp between strokes")
+        print("real fingers (t / y top, x / c bottom): " + fingers.summary())
 
     from controller import Controller
     ctl = Controller(robot, cam, log, reversed_flags)
