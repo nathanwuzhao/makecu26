@@ -1,0 +1,59 @@
+{
+ "servos": {
+  "0": {
+   "calibrated_at": "2026-11-08 03:11:08",
+   "far_us": 2370,
+   "home_us": 530,
+   "margin_us": 30,
+   "marked_far_us": 2400,
+   "marked_home_us": 500,
+   "max_us": 2370,
+   "min_us": 530,
+   "reversed": 0
+  },
+  "1": {
+   "calibrated_at": "2026-11-08 02:58:49",
+   "far_us": 2370,
+   "home_us": 530,
+   "margin_us": 30,
+   "marked_far_us": 2400,
+   "marked_home_us": 500,
+   "max_us": 2370,
+   "min_us": 530,
+   "reversed": 0
+  },
+  "4": {
+   "calibrated_at": "2026-11-08 02:48:00",
+   "far_us": 2370,
+   "home_us": 530,
+   "margin_us": 30,
+   "marked_far_us": 2400,
+   "marked_home_us": 500,
+   "max_us": 2370,
+   "min_us": 530,
+   "reversed": 0
+  },
+  "5": {
+   "calibrated_at": "2026-11-08 03:07:40",
+   "far_us": 2370,
+   "home_us": 530,
+   "margin_us": 30,
+   "marked_far_us": 2400,
+   "marked_home_us": 500,
+   "max_us": 2370,
+   "min_us": 530,
+   "reversed": 0
+  },
+  "6": {
+   "calibrated_at": "2026-11-08 02:52:18",
+   "far_us": 2370,
+   "home_us": 530,
+   "margin_us": 30,
+   "marked_far_us": 2400,
+   "marked_home_us": 500,
+   "max_us": 2370,
+   "min_us": 530,
+   "reversed": 0
+  }
+ }
+}
