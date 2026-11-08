@@ -1,0 +1,17 @@
+{
+ "_comment": "Inferred from the CAD tree (no Fusion joints). Axes are in CAD coordinates (Z up, fingers along +X, left fingers at +Y). Displacement = sign * (angle - zero_deg) * mm_per_deg along the axis. The CAD pose = every servo at zero_deg. Tune sign/zero_deg live in the page's 'Twin calibration' panel, then 'Copy JSON' and paste here.",
+ "mm_per_deg": 0.1396,
+ "servos": {
+  "0": {"name": "bottom squeeze", "parts": [["Bottom Left:1", [0, -1, 0]], ["Bottom Right:1", [0, 1, 0]]], "sign": 1, "zero_deg": 0, "current": 0},
+  "1": {"name": "bottom finger R", "parts": [["finger tip:1", [1, 0, 0]]], "sign": 1, "zero_deg": 0},
+  "2": {"name": "halves up/down", "parts": [["Auxillary Gripper:1", [0, 0, 1]]], "sign": 1, "zero_deg": 0},
+  "3": {"name": "bottom finger L", "parts": [["finger tip:2", [1, 0, 0]]], "sign": 1, "zero_deg": 0},
+  "4": {"name": "top finger R", "parts": [["finger tip:3", [1, 0, 0]]], "sign": 1, "zero_deg": 0},
+  "5": {"name": "top squeeze", "parts": [["Top Left:1", [0, -1, 0]], ["Top Right:1", [0, 1, 0]]], "sign": 1, "zero_deg": 0, "current": 1},
+  "6": {"name": "top finger L", "parts": [["finger tip:4", [1, 0, 0]]], "sign": 1, "zero_deg": 0}
+ },
+ "tint_by_current": {
+  "0": ["finger tip:1", "finger tip:2"],
+  "1": ["finger tip:3", "finger tip:4"]
+ }
+}

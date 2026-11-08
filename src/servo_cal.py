@@ -69,6 +69,16 @@ def limp(robot, idx: int):
     _limp_then(robot, idx, rev, rev)
 
 
+def limp_all(robot, reversed_flags: dict[int, int]):
+    """E-stop: every servo limp NOW. No queries (no waiting): flips each servo's R and flips it
+    back, which the firmware answers by going limp. reversed_flags must be the firmware's
+    current flags (main.py verified them against calibration.json at start)."""
+    for i in range(NUM_SERVOS):
+        r = int(reversed_flags.get(i, 0))
+        robot.command(f"R {i} {1 - r}")
+        robot.command(f"R {i} {r}")
+
+
 def apply(robot, idx: int, min_us: int, max_us: int, reversed_: int):
     """Write C + R for one servo. The servo is made limp FIRST, so the new mapping can't make it
     jump (firmware: C re-drives an engaged servo at its old angle under the new mapping)."""

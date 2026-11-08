@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gripper Twin</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.js", "three/addons/": "./vendor/addons/" } }
+</script>
+</head>
+<body>
+<main>
+  <section id="stage">
+    <canvas id="view"></canvas>
+    <div id="hud">
+      <span id="conn" class="pill bad">connecting…</span>
+      <span id="tact" class="pill">tactile —</span>
+      <span id="hz" class="pill">— Hz</span>
+    </div>
+    <div id="cam-wrap" hidden><img id="cam" alt="webcam"></div>
+  </section>
+
+  <aside id="side">
+    <section id="ctl">
+      <div class="ctl-head">
+        <span id="run-state" class="pill">no controller</span>
+        <span id="run-info" class="muted"></span>
+      </div>
+      <button id="estop" title="Esc: lock motion + every servo limp now">E-STOP <small>(Esc)</small></button>
+      <div class="ctl-row">
+        <button id="start" class="go">Start</button>
+        <button id="stop">Stop</button>
+        <button id="reset-estop" hidden>Reset E-stop</button>
+      </div>
+      <div class="ctl-row opts">
+        <label><input type="checkbox" id="opt-gemini"> Gemini <small id="budget"></small></label>
+        <label>cycles <input type="number" id="opt-cycles" min="1" max="100" value="20"></label>
+      </div>
+      <div id="ctl-msg" class="muted"></div>
+    </section>
+
+    <h2>Servos</h2>
+    <div id="servos"></div>
+
+    <h2>Squeeze current <small>(i0 bottom · i1 top, last 10 s)</small></h2>
+    <canvas id="plot" height="120"></canvas>
+
+    <h2>Tactile <small>(16 × 32)</small></h2>
+    <canvas id="heat" width="320" height="160"></canvas>
+
+    <h2>Agent / events</h2>
+    <ol id="log"></ol>
+
+    <details id="calib">
+      <summary>Twin calibration</summary>
+      <p class="hint">Move a servo (jog tool or <code>--demo</code>) and check the twin moves the same way.
+        Flip <b>sign</b> if it goes backwards; set <b>zero</b> to the servo angle that matches the CAD pose.
+        Saved in this browser; <b>Copy JSON</b> and paste into <code>web/kinematics.json</code> to share.</p>
+      <div id="calib-rows"></div>
+      <button id="copy">Copy JSON</button> <button id="reset">Reset to file</button>
+    </details>
+  </aside>
+</main>
+<script type="module" src="app.js"></script>
+</body>
+</html>
